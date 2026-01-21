@@ -1,0 +1,149 @@
+{
+  "jobs": [
+    {
+      "_id": "oP9Xfl0NoXLt0HI27lU9C",
+      "company": "Google",
+      "position": "Senior Frontend Engineer",
+      "status": "Applied",
+      "notes": "Referral from Sarah. Focus on React performance.",
+      "jobLink": "https://careers.google.com/jobs/results/",
+      "dateApplied": "2026-01-21T07:30:39.426Z"
+    },
+    {
+      "_id": "W9SwPh92ZiAKmcYwu4Fl0",
+      "company": "Meta",
+      "position": "Full Stack Developer",
+      "status": "Interviewing",
+      "notes": "Recruiter screen passed. Technical round scheduled for next Tuesday.",
+      "jobLink": "https://www.metacareers.com/",
+      "dateApplied": "2026-01-21T07:30:39.427Z"
+    },
+    {
+      "_id": "TMSA97iISiuwpaohMoiOL",
+      "company": "Netflix",
+      "position": "UI Engineer",
+      "status": "Offer",
+      "notes": "Offer received! Negotiating salary. Deadline: Jan 30.",
+      "jobLink": "https://jobs.netflix.com/",
+      "dateApplied": "2026-01-21T07:30:39.427Z"
+    },
+    {
+      "_id": "R21ZCZu5uMCm7yF8flA0Y",
+      "company": "Amazon",
+      "position": "SDE II",
+      "status": "Rejected",
+      "notes": "Failed system design round. Need to prefer for scaling questions next time.",
+      "jobLink": "https://www.amazon.jobs/",
+      "dateApplied": "2026-01-21T07:30:39.427Z"
+    },
+    {
+      "_id": "logIMjsIyYYQXjkDIfCbW",
+      "company": "Spotify",
+      "position": "Web Developer",
+      "status": "Applied",
+      "notes": "Love the product. Applied via LinkedIn.",
+      "jobLink": "https://www.lifeatspotify.com/",
+      "dateApplied": "2026-01-21T07:30:39.427Z"
+    },
+    {
+      "_id": "t65a_rL4vyiJXolEply5a",
+      "company": "Airbnb",
+      "position": "Frontend Specialist",
+      "status": "Interviewing",
+      "notes": "Onsite loop completed. Waiting for feedback.",
+      "jobLink": "https://careers.airbnb.com/",
+      "dateApplied": "2026-01-21T07:30:39.427Z"
+    },
+    {
+      "_id": "qToTFpvtlVfqAbmBQ0TnZ",
+      "company": "Microsoft",
+      "position": "Software Engineer II",
+      "status": "Applied",
+      "notes": "Applied for the Azure team position.",
+      "jobLink": "https://careers.microsoft.com/",
+      "dateApplied": "2026-01-21T07:30:39.427Z"
+    },
+    {
+      "_id": "qGYNex9cX-4Rxoa7M-hFi",
+      "company": "Uber",
+      "position": "Product Engineer",
+      "status": "Applied",
+      "notes": "Interested in their mapping tech.",
+      "jobLink": "https://www.uber.com/us/en/careers/",
+      "dateApplied": "2026-01-21T07:30:39.427Z"
+    },
+    {
+      "_id": "o9Bvnxvcr3v1iJO7S09b8",
+      "company": "Stripe",
+      "position": "Solutions Engineer",
+      "status": "Applied",
+      "notes": "Payment integration role.",
+      "jobLink": "https://stripe.com/jobs",
+      "dateApplied": "2026-01-21T07:30:39.427Z"
+    },
+    {
+      "_id": "OmA8ueW65U3bKkFiD1X9A",
+      "company": "Twitter / X",
+      "position": "React Developer",
+      "status": "Rejected",
+      "notes": "Position closed.",
+      "jobLink": "https://careers.twitter.com/",
+      "dateApplied": "2026-01-21T07:30:39.427Z"
+    }
+  ],
+  "profile": {
+    "name": "YASIR RAEES",
+    "email": "yasirraeesit@gmail.com",
+    "phone": "+923174886566",
+    "jobTitle": "MERN Stack Developer | Software Engineer",
+    "bio": "MERN Stack Developer with 1 year of hands-on experience in building scalable and responsive web applications using React.js, Node.js, Express.js, and MongoDB. Experienced in developing RESTful APIs, managing databases, and following Agile development practices.",
+    "socialLinks": {
+      "linkedin": "linkedin.com/in/developer-yasir",
+      "github": "",
+      "portfolio": ""
+    },
+    "skills": [
+      "JavaScript",
+      "React",
+      "Node.js",
+      "Express.js",
+      "Tailwind CSS",
+      "Bootstrap",
+      "MongoDB",
+      "MySQL",
+      "GitHub",
+      "WordPress",
+      "Object Oriented Programming (OOP)",
+      "Strong Communication",
+      "Problem Solving",
+      "Responsive Design"
+    ],
+    "experience": [
+      {
+        "role": "MERN Stack Intern",
+        "company": "INNOVENT Tech",
+        "duration": "7 Months",
+        "description": "Developed full-stack web applications using the MERN Stack, built scalable and reusable React.js components, designed and integrated RESTful APIs, and performed CRUD operations using MongoDB."
+      },
+      {
+        "role": "WordPress Developer",
+        "company": "Pie Solutions (Pvt.) Ltd",
+        "duration": "1 Year",
+        "description": "Developed custom WordPress themes and plugins, integrated WooCommerce, improved website performance and SEO, and coordinated with clients to deliver high-quality solutions."
+      },
+      {
+        "role": "Web Development Training",
+        "company": "ORKANS",
+        "duration": "3 Months",
+        "description": "Gained hands-on experience with HTML, CSS, JavaScript, and responsive design best practices, and built small projects to strengthen core coding and debugging skills."
+      }
+    ],
+    "education": [
+      {
+        "degree": "BS (Hons) in Computer Science",
+        "school": "Hajvery University",
+        "year": "2019-2023"
+      }
+    ]
+  }
+}
