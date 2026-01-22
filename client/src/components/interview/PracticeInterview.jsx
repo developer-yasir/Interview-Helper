@@ -11,23 +11,41 @@ import CodeEditor from './CodeEditor';
 import VoiceWaveform from './VoiceWaveform';
 import ReactMarkdown from 'react-markdown';
 
-const MockInterview = ({ profile, config, onExit }) => {
+const PracticeInterview = ({ profile, config, onExit }) => {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [loading, setLoading] = useState(false);
     const [code, setCode] = useState("// Write your solution here...\n\nfunction solution() {\n    return 'Hello from the sandbox!';\n}\n\n// Run and see output below\nconsole.log(solution());");
     const [isEditorCollapsed, setIsEditorCollapsed] = useState(false);
+    const [isNarrateMode, setIsNarrateMode] = useState(false);
+    const [narrationHistory, setNarrationHistory] = useState([]);
     const messagesEndRef = useRef(null);
     const { isListening, transcript, startListening, stopListening, resetTranscript } = useSpeechRecognition();
 
     const isTechnical = config.type === 'Technical';
 
-    // Sync voice transcript to input
+    // Sync voice transcript to input OR narration history
     useEffect(() => {
         if (transcript) {
-            setInput(transcript);
+            if (isNarrateMode) {
+                // In narration mode, we periodically save the transcript and reset it to keep it background
+                const lastTranscript = transcript.trim();
+                if (lastTranscript) {
+                    setNarrationHistory(prev => {
+                        const newHistory = [...prev];
+                        if (newHistory.length > 0 && lastTranscript.startsWith(newHistory[newHistory.length - 1])) {
+                            newHistory[newHistory.length - 1] = lastTranscript;
+                        } else {
+                            newHistory.push(lastTranscript);
+                        }
+                        return newHistory;
+                    });
+                }
+            } else {
+                setInput(transcript);
+            }
         }
-    }, [transcript]);
+    }, [transcript, isNarrateMode]);
 
     // Initial Greeting
     useEffect(() => {
@@ -122,7 +140,8 @@ const MockInterview = ({ profile, config, onExit }) => {
                 body: JSON.stringify({
                     type: config.type,
                     difficulty: config.difficulty,
-                    messages: messages
+                    messages: messages,
+                    narration: isNarrateMode ? narrationHistory : []
                 })
             });
             onExit();
@@ -166,19 +185,43 @@ const MockInterview = ({ profile, config, onExit }) => {
 
                 <div className="flex items-center gap-3">
                     {isTechnical && (
-                        <button
-                            onClick={() => setIsEditorCollapsed(!isEditorCollapsed)}
-                            className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all ${isEditorCollapsed
+                        <>
+                            <button
+                                onClick={() => {
+                                    const nextMode = !isNarrateMode;
+                                    setIsNarrateMode(nextMode);
+                                    if (nextMode) {
+                                        startListening();
+                                    } else {
+                                        stopListening();
+                                    }
+                                }}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all ${isNarrateMode
+                                    ? 'bg-purple-500/20 border-purple-500/40 text-purple-300 ring-2 ring-purple-500/20 shadow-[0_0_15px_rgba(168,85,247,0.2)]'
+                                    : 'bg-gray-800/40 border-gray-700/50 text-gray-400 hover:text-white hover:bg-gray-800/60'
+                                    }`}
+                                title={isNarrateMode ? "Disable Logic Narrator" : "Enable Logic Narrator"}
+                            >
+                                <div className={`w-2 h-2 rounded-full ${isNarrateMode ? 'bg-red-500 animate-pulse' : 'bg-gray-500'}`} />
+                                <Mic className="w-3.5 h-3.5" />
+                                <span className="text-[10px] font-bold uppercase tracking-widest hidden sm:inline">
+                                    Logic Narrator
+                                </span>
+                            </button>
+                            <button
+                                onClick={() => setIsEditorCollapsed(!isEditorCollapsed)}
+                                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg border transition-all ${isEditorCollapsed
                                     ? 'bg-blue-500/20 border-blue-500/40 text-blue-300'
                                     : 'bg-gray-800/40 border-gray-700/50 text-gray-400 hover:text-white hover:bg-gray-800/60'
-                                }`}
-                            title={isEditorCollapsed ? "Show Editor" : "Focus on Chat (Zen Mode)"}
-                        >
-                            {isEditorCollapsed ? <Layout className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
-                            <span className="text-[10px] font-bold uppercase tracking-widest hidden sm:inline">
-                                {isEditorCollapsed ? "Show Editor" : "Zen Mode"}
-                            </span>
-                        </button>
+                                    }`}
+                                title={isEditorCollapsed ? "Show Editor" : "Focus on Chat (Zen Mode)"}
+                            >
+                                {isEditorCollapsed ? <Layout className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
+                                <span className="text-[10px] font-bold uppercase tracking-widest hidden sm:inline">
+                                    Zen Mode
+                                </span>
+                            </button>
+                        </>
                     )}
                     <button
                         onClick={handleEndSession}
@@ -244,13 +287,11 @@ const MockInterview = ({ profile, config, onExit }) => {
                                                                                     <><Copy className="w-3 h-3" /> Copy</>
                                                                                 )}
                                                                             </button>
-                                                                            <button
-                                                                                onClick={() => setCode(codeValue)}
-                                                                                className="px-3 py-1 bg-blue-600 hover:bg-blue-500 text-white text-[10px] font-bold rounded-lg shadow-lg flex items-center gap-1.5 transition-all active:scale-95"
-                                                                                title="Apply this code to the editor"
-                                                                            >
-                                                                                <Play className="w-3 h-3 fill-current" /> Apply to Editor
-                                                                            </button>
+                                                                            <LiveAssist
+                                                                                profile={profile}
+                                                                                config={config}
+                                                                                onExit={() => setView('selection')}
+                                                                            />
                                                                         </div>
                                                                         <pre className="!bg-gray-950/50 !p-4 !rounded-xl border border-white/5 scrollbar-thin scrollbar-thumb-gray-800">
                                                                             <code className={className} {...props}>
@@ -351,4 +392,4 @@ const MockInterview = ({ profile, config, onExit }) => {
     );
 };
 
-export default MockInterview;
+export default PracticeInterview;

@@ -113,21 +113,31 @@ router.post('/suggest', auth, async (req, res) => {
 
         const systemPrompt = `
             You are an expert Interview Coach providing real-time assistance.
-            The candidate is in a live interview and needs quick, short, concise answer suggestions based on what is being discussed.
+            The candidate is in a live interview and needs quick, high-impact "Talk Tracks".
             
             Current Transcript: "${transcript}"
             
             Task:
-            Provide 3 distinct short answer suggestions.
+            1. Provide 3 distinct answer suggestions (neutral, confident, technical).
+            2. For each suggestion, provide a "Talk Track" breakdown:
+               - "hook": How to start the sentence naturally.
+               - "meat": The core technical/factual points.
+               - "close": A strong closing or follow-up question.
+            3. Assign a "confidence" score (0-100) based on how well the suggestion matches the context.
+            4. Extract "keywords" from the transcript that are technical or important.
+            5. Estimate the user's "tone" and "pace" (WPM).
             
             Output Format (JSON strictly):
             {
-                "neutral": "A balanced, safe answer...",
-                "confident": "A strong, results-oriented answer...",
-                "technical": "A deep, detailed technical answer..."
+                "neutral": { "hook": "...", "meat": "...", "close": "...", "confidence": 85 },
+                "confident": { "hook": "...", "meat": "...", "close": "...", "confidence": 90 },
+                "technical": { "hook": "...", "meat": "...", "close": "...", "confidence": 75 },
+                "keywords": ["React", "State Management", ...],
+                "pace": 120,
+                "tone": "Confident"
             }
             
-            Keep answers under 2 sentences. Return ONLY valid JSON.
+            Return ONLY valid JSON. Keep each part of the Talk Track under 1 sentence.
         `;
 
         const completion = await groq.chat.completions.create({
@@ -156,7 +166,7 @@ router.post('/suggest', auth, async (req, res) => {
 // @access  Private
 router.post('/save', auth, async (req, res) => {
     try {
-        const { type, difficulty, messages } = req.body;
+        const { type, difficulty, messages, narration } = req.body;
 
         if (!messages || messages.length < 2) {
             return res.status(400).json({ message: "Not enough conversation to evaluate." });
@@ -166,12 +176,20 @@ router.post('/save', auth, async (req, res) => {
         const evaluationPrompt = `
             You are an expert Interview Coach. Analyze the following interview transcript and provide a brief summary of performance, areas for improvement, and a numerical score (0-100).
             
+            ${narration && narration.length > 0 ? `
+            CONTEXT (Logic Narrator Logs):
+            The candidate was practicing "Talking while Coding". Here are their spoken thoughts:
+            ${narration.join('\n')}
+            
+            CRITICAL: Specifically evaluate their "Communication Clarity". Did they explain their logic clearly while coding?
+            ` : ''}
+
             Transcript:
             ${messages.map(m => `${m.role.toUpperCase()}: ${m.content}`).join('\n')}
             
             Output Format (JSON strictly):
             {
-                "feedback": "Concise summary and tips...",
+                "feedback": "Concise summary, tips, and communication clarity evaluation...",
                 "score": 85
             }
         `;
