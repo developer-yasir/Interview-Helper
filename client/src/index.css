@@ -20,3 +20,19 @@
         @apply px-6 py-2 rounded-lg transition-colors;
     }
 }
+
+@layer utilities {
+    .mask-gradient-top {
+        mask-image: linear-gradient(to bottom, transparent, black 20px);
+        -webkit-mask-image: linear-gradient(to bottom, transparent, black 20px);
+    }
+
+    .scrollbar-none {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .scrollbar-none::-webkit-scrollbar {
+        display: none;
+    }
+}

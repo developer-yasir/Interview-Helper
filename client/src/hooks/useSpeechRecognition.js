@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-const useSpeechRecognition = () => {
+const useSpeechRecognition = (onSilence) => {
     const [isListening, setIsListening] = useState(false);
     const [transcript, setTranscript] = useState('');
     const [recognition, setRecognition] = useState(null);
@@ -32,6 +32,8 @@ const useSpeechRecognition = () => {
             };
 
             recognitionInstance.onend = () => {
+                // Determine if we should restart (if silence hasn't killed it yet)
+                // For now, simpler: just stop.
                 setIsListening(false);
             };
 
@@ -40,6 +42,20 @@ const useSpeechRecognition = () => {
             console.warn('Speech Recognition API not supported in this browser.');
         }
     }, []);
+
+    // Silence Timer
+    useEffect(() => {
+        let timer;
+        if (isListening && transcript.trim().length > 0) {
+            // Restart timer on every transcript change (speech detected)
+            timer = setTimeout(() => {
+                console.log("Silence detected (2s), stopping...");
+                if (onSilence) onSilence(transcript);
+                stopListening();
+            }, 2000);
+        }
+        return () => clearTimeout(timer);
+    }, [transcript, isListening, onSilence]);
 
     const startListening = useCallback(() => {
         if (recognition && !isListening) {

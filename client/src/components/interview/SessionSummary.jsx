@@ -1,122 +1,75 @@
 import { motion } from 'framer-motion';
-import { Download, CheckCircle, Clock, Activity, FileText, ChevronRight, RefreshCw, X } from 'lucide-react';
-import { jsPDF } from 'jspdf';
+import { Award, Clock, MessageSquare, CheckCircle, Home, RotateCcw } from 'lucide-react';
 
-const SessionSummary = ({ transcript, duration, paceHistory = [], suggestions = [], onClose }) => {
-
-    const handleDownloadPDF = () => {
-        const doc = new jsPDF();
-
-        // Header
-        doc.setFontSize(20);
-        doc.setTextColor(51, 65, 85); // Slate 700
-        doc.text("Interview Session Summary", 20, 20);
-
-        doc.setFontSize(10);
-        doc.setTextColor(100, 116, 139); // Slate 500
-        doc.text(`Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}`, 20, 28);
-
-        // Stats
-        doc.setDrawColor(226, 232, 240); // Slate 200
-        doc.line(20, 35, 190, 35);
-
-        doc.setFontSize(12);
-        doc.setTextColor(0, 0, 0);
-        doc.text("Session Stats", 20, 45);
-
-        doc.setFontSize(10);
-        doc.setTextColor(71, 85, 105);
-        doc.text(`Duration: ${duration} minutes`, 20, 55);
-        doc.text(`Average Pace: ${calculateAvgPace()} WPM`, 20, 62);
-
-        // Transcript
-        doc.line(20, 70, 190, 70);
-        doc.setFontSize(12);
-        doc.setTextColor(0, 0, 0);
-        doc.text("Transcript Log", 20, 80);
-
-        doc.setFontSize(10);
-        doc.setTextColor(51, 65, 85);
-
-        const splitText = doc.splitTextToSize(transcript || "No transcript recorded.", 170);
-        doc.text(splitText, 20, 90);
-
-        doc.save("interview-session-summary.pdf");
-    };
-
-    const calculateAvgPace = () => {
-        if (!paceHistory.length) return 0;
-        const total = paceHistory.reduce((acc, curr) => acc + curr, 0);
-        return Math.round(total / paceHistory.length);
-    };
+const SessionSummary = ({ messages, duration, onHome, onRetry }) => {
+    // Calculate basic stats
+    const assistantMessages = messages.filter(m => m.role === 'assistant');
+    const userMessages = messages.filter(m => m.role === 'user');
+    const hintsUsed = assistantMessages.filter(m => m.content.includes("💡 HINT")).length;
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex flex-col h-full max-w-4xl mx-auto p-6 gap-8 text-slate-200"
-        >
-            <div className="text-center space-y-2 mb-4">
-                <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="w-16 h-16 bg-emerald-500/20 rounded-full flex items-center justify-center mx-auto border border-emerald-500/30 mb-4"
-                >
-                    <CheckCircle className="w-8 h-8 text-emerald-400" />
-                </motion.div>
-                <h2 className="text-3xl font-bold text-white tracking-tight">Session Complete</h2>
-                <p className="text-slate-400">Great work! Here's your performance breakdown.</p>
-            </div>
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-xl p-4">
+            <motion.div
+                initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                className="bg-gray-900 border border-gray-800 rounded-3xl p-8 max-w-2xl w-full shadow-2xl relative overflow-hidden"
+            >
+                {/* Background Decor */}
+                <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-[80px] -translate-y-1/2 translate-x-1/2 pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-64 h-64 bg-blue-500/10 rounded-full blur-[80px] translate-y-1/2 -translate-x-1/2 pointer-events-none" />
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-slate-900/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 flex flex-col items-center justify-center gap-2">
-                    <Clock className="w-6 h-6 text-blue-400 mb-2" />
-                    <span className="text-3xl font-bold text-white">{duration}</span>
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Minutes</span>
+                <div className="text-center mb-8 relative z-10">
+                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-purple-500/20">
+                        <Award className="w-8 h-8 text-white" />
+                    </div>
+                    <h2 className="text-3xl font-bold text-white mb-2">Session Complete!</h2>
+                    <p className="text-gray-400">Great job practicing. Here's how you did.</p>
                 </div>
-                <div className="bg-slate-900/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 flex flex-col items-center justify-center gap-2">
-                    <Activity className="w-6 h-6 text-indigo-400 mb-2" />
-                    <span className="text-3xl font-bold text-white">{calculateAvgPace()}</span>
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Avg WPM</span>
-                </div>
-                <div className="bg-slate-900/40 backdrop-blur-xl border border-white/10 rounded-3xl p-6 flex flex-col items-center justify-center gap-2">
-                    <FileText className="w-6 h-6 text-purple-400 mb-2" />
-                    <span className="text-3xl font-bold text-white">{transcript ? transcript.split(' ').length : 0}</span>
-                    <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Words Spoken</span>
-                </div>
-            </div>
 
-            <div className="bg-slate-900/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 flex-1 min-h-0 flex flex-col gap-6 relative overflow-hidden group">
-                <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-bold text-white flex items-center gap-2">
-                        <FileText className="w-5 h-5 text-slate-400" /> Transcript
-                    </h3>
-                    <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={handleDownloadPDF}
-                        className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-bold text-sm transition-all shadow-lg shadow-indigo-500/20"
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 relative z-10">
+                    <div className="bg-gray-800/50 p-4 rounded-2xl border border-gray-700/50 text-center">
+                        <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center mx-auto mb-2 text-blue-400">
+                            <Clock className="w-5 h-5" />
+                        </div>
+                        <div className="text-2xl font-bold text-white">
+                            {Math.floor(duration / 60)}<span className="text-sm font-normal text-gray-500">m</span> {duration % 60}<span className="text-sm font-normal text-gray-500">s</span>
+                        </div>
+                        <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mt-1">Duration</div>
+                    </div>
+
+                    <div className="bg-gray-800/50 p-4 rounded-2xl border border-gray-700/50 text-center">
+                        <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center mx-auto mb-2 text-purple-400">
+                            <MessageSquare className="w-5 h-5" />
+                        </div>
+                        <div className="text-2xl font-bold text-white">{userMessages.length}</div>
+                        <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mt-1">Exchanges</div>
+                    </div>
+
+                    <div className="bg-gray-800/50 p-4 rounded-2xl border border-gray-700/50 text-center">
+                        <div className="w-10 h-10 bg-yellow-500/10 rounded-xl flex items-center justify-center mx-auto mb-2 text-yellow-400">
+                            <CheckCircle className="w-5 h-5" />
+                        </div>
+                        <div className="text-2xl font-bold text-white">{hintsUsed}</div>
+                        <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mt-1">Hints Used</div>
+                    </div>
+                </div>
+
+                <div className="flex gap-4 relative z-10">
+                    <button
+                        onClick={onHome}
+                        className="flex-1 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl font-bold transition-colors flex items-center justify-center gap-2"
                     >
-                        <Download className="w-4 h-4" /> Export PDF
-                    </motion.button>
+                        <Home className="w-4 h-4" /> Back to Home
+                    </button>
+                    <button
+                        onClick={onRetry}
+                        className="flex-1 py-3 bg-white text-black hover:bg-gray-100 rounded-xl font-bold shadow-lg transition-transform transform hover:scale-105 flex items-center justify-center gap-2"
+                    >
+                        <RotateCcw className="w-4 h-4" /> Practice Again
+                    </button>
                 </div>
-
-                <div className="bg-black/20 rounded-xl p-6 flex-1 overflow-y-auto custom-scrollbar border border-white/5">
-                    <p className="text-slate-300 leading-relaxed whitespace-pre-wrap font-medium">
-                        {transcript || <span className="text-slate-600 italic">No transcript available for this session.</span>}
-                    </p>
-                </div>
-            </div>
-
-            <div className="flex justify-center pt-4">
-                <button
-                    onClick={onClose}
-                    className="text-slate-500 hover:text-white transition-colors flex items-center gap-2 text-sm font-bold uppercase tracking-wider"
-                >
-                    Close Session <X className="w-4 h-4" />
-                </button>
-            </div>
-        </motion.div>
+            </motion.div>
+        </div>
     );
 };
 

@@ -46,9 +46,24 @@ router.post('/chat', auth, async (req, res) => {
         } else {
             // MOCK INTERVIEW PROMPT
             const currentCode = req.body.config?.currentCode;
+            const persona = config?.persona || 'Recruiter';
+
+            let personaGuidelines = "";
+            switch (persona) {
+                case 'TechLead':
+                    personaGuidelines = "Role: Pragmatic Tech Lead. Focus on system design, trade-offs, scalability, and code quality. Be constructive but demanding.";
+                    break;
+                case 'BarRaiser':
+                    personaGuidelines = "Role: The Bar Raiser. Be skeptical, dig deep into edge cases, security, and performance. Challenge every assumption. Do not be easily satisfied.";
+                    break;
+                case 'Recruiter':
+                default:
+                    personaGuidelines = "Role: Friendly Recruiter. Focus on behavioral fit, culture, and high-level experience. Be encouraging.";
+                    break;
+            }
 
             systemPrompt = `
-                You are an expert ${config?.type || 'Technical'} Interviewer. 
+                You are an expert ${config?.type || 'Technical'} Interviewer acting as a **${persona}**. 
                 Your goal is to conduct a professional mock interview with the candidate.
 
                 Candidate Context:
@@ -60,6 +75,9 @@ router.post('/chat', auth, async (req, res) => {
                 Interview Configuration:
                 Type: ${config?.type || 'Technical'}
                 Difficulty: ${config?.difficulty || 'Medium'}
+                Persona: ${persona}
+
+                ${personaGuidelines}
 
                 ${config?.type === 'Technical' ? `
                 TECHNICAL MODE GUIDELINES:
@@ -70,7 +88,7 @@ router.post('/chat', auth, async (req, res) => {
                    Candidate's code: ${currentCode || '// Empty'}
                 5. Formatting: Use proper Markdown with newlines. Code blocks should be on new lines.
                 6. Evaluation: Analyze logic and Time/Space complexity ($O(n)$).
-                7. Interaction: Be concise. If the candidate is stuck, provide a small hint.
+                7. Interaction: Be concise. If the user asks for a HINT, provide a subtle nudge, NOT the full solution.
                 ` : `
                 GENERAL MODE GUIDELINES:
                 1. Ask one relevant question at a time.
