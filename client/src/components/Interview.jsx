@@ -2,18 +2,27 @@ import { useState, useEffect } from 'react';
 import { Bot, Mic, BookOpen, ArrowRight, AlertTriangle, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import LiveAssist from './interview/LiveAssist';
-import MockInterview from './interview/MockInterview';
+import PracticeInterview from './interview/PracticeInterview';
 import ModeCard from './interview/ModeCard';
 
 const Interview = () => {
     // Mode State: 'selection', 'live-assist', 'mock-active'
-    const [view, setView] = useState('selection');
+    const [view, setView] = useState(() => localStorage.getItem('interviewStep') || 'selection');
 
     // Default Mock Interview State (will be refined in chat)
-    const [config, setConfig] = useState({
-        type: 'Technical',
-        difficulty: 'Medium'
+    const [config, setConfig] = useState(() => {
+        const savedConfig = localStorage.getItem('interviewConfig');
+        return savedConfig ? JSON.parse(savedConfig) : {
+            type: 'Technical',
+            difficulty: 'Medium'
+        };
     });
+
+    // Persist State
+    useEffect(() => {
+        localStorage.setItem('interviewStep', view);
+        localStorage.setItem('interviewConfig', JSON.stringify(config));
+    }, [view, config]);
     const [profile, setProfile] = useState(null);
 
     useEffect(() => {
@@ -36,13 +45,19 @@ const Interview = () => {
 
     // RENDER: LIVE ASSIST MODE
     if (view === 'live-assist') {
-        return <LiveAssist onExit={() => setView('selection')} />;
+        return (
+            <LiveAssist
+                profile={profile}
+                config={config}
+                onExit={() => setView('selection')}
+            />
+        );
     }
 
     // RENDER: MOCK INTERVIEW CHAT (Refined UI)
     if (view === 'mock-active') {
         return (
-            <MockInterview
+            <PracticeInterview
                 profile={profile}
                 config={config}
                 onExit={() => setView('selection')}
